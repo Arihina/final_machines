@@ -1,6 +1,9 @@
 from itertools import product
 from pprint import pprint
 
+import matplotlib.pyplot as plt
+import networkx as nx
+
 alphabet = {'a', 'b', 'c'}
 
 
@@ -47,6 +50,7 @@ def task2(table1: dict[tuple[str, str], str], table2: dict[tuple[str, str], str]
     :param final_states2: (list[str]) Final states for machine 2.
     :return: None
     """
+
     states1 = set(q for (q, _) in t1.keys())
     states2 = set(q for (q, _) in t2.keys())
     states = set(product(states1, states2))
@@ -76,6 +80,43 @@ def task2(table1: dict[tuple[str, str], str], table2: dict[tuple[str, str], str]
     print(*intersection)
 
 
+def draw(transitions: dict[tuple[str, str], str], start_state, final_states) -> None:
+    """
+    Draw DFA using NetworkX and Matplotlib.
+    :param transitions: (dict[tuple[str, str], str])  Machine transfer table.
+    :param start_state: (str) Start state.
+    :param final_states: (list[str]) Final states.
+    :return: None
+    """
+    G = nx.DiGraph()
+
+    edge_labels = {}
+    for (state, symbol), next_state in transitions.items():
+        if G.has_edge(state, next_state):
+            edge_labels[(state, next_state)] += f", {symbol}"
+        else:
+            G.add_edge(state, next_state)
+            edge_labels[(state, next_state)] = symbol
+
+    pos = nx.spring_layout(G)
+
+    plt.figure(figsize=(8, 6))
+    node_colors = ['lightgreen' if n in final_states else 'lightblue' for n in G.nodes()]
+    nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=1500)
+    nx.draw_networkx_labels(G, pos, font_size=12, font_weight='bold')
+
+    nx.draw_networkx_edges(G, pos, arrowstyle='-|>', arrowsize=20, connectionstyle='arc3, rad=0.1')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
+
+    x, y = pos[start_state]
+    plt.scatter(x - 0.2, y, s=300, c='green', marker='>')
+    plt.text(x - 0.25, y + 0.05, 'start', fontsize=10, fontweight='bold')
+
+    plt.axis('off')
+    plt.title("DFA Visualization")
+    plt.show()
+
+
 if __name__ == "__main__":
     print(task1("cabacabac"))
     print("---------------------")
@@ -100,3 +141,6 @@ if __name__ == "__main__":
     pprint(t2)
 
     task2(t1, t2, ['q2', 'q4'], ['q1', 'q3'])
+
+    # draw(t2, 'q0', ['q1', 'q3'])
+    # draw(t1, 'q0', ['q2', 'q4'])
