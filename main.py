@@ -67,8 +67,8 @@ def task2(table1: dict[tuple[str, str], str], table2: dict[tuple[str, str], str]
     :return: None
     """
 
-    states1 = set(q for (q, _) in t1.keys())
-    states2 = set(q for (q, _) in t2.keys())
+    states1 = set(q for (q, _) in table1.keys())
+    states2 = set(q for (q, _) in table2.keys())
     states = set(product(states1, states2))
 
     transition = {}
