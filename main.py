@@ -1,27 +1,32 @@
 from itertools import product
-from pprint import pprint
+from tkinter import ttk
+from tkinter.messagebox import showinfo, showerror
 
+import customtkinter as ctk
 import matplotlib.pyplot as plt
 import networkx as nx
 
-alphabet = {'a', 'b', 'c'}
+alphabet = ['a', 'b', 'c']
+
+ctk.set_appearance_mode('light')
 
 
-def task1(input_string: str) -> bool:
+def task1(input_string: str) -> None:
     """
     The finite state machine for searching for a subword "abacab".
     :param input_string: (str) Input string with word.
-    :return: (bool) True if the subword "abacab" was found, else False.
+    :return: None.
     """
 
-    start_state, final_state = 'q0', 'q6'
+    start_state = 'q0'
+    final_state = 'q6'
 
     transitions: dict[tuple[str, str], str] = {
         ('q0', 'a'): 'q1', ('q0', 'b'): 'q0', ('q0', 'c'): 'q0',
         ('q1', 'a'): 'q1', ('q1', 'b'): 'q2', ('q1', 'c'): 'q0',
         ('q2', 'a'): 'q3', ('q2', 'b'): 'q0', ('q2', 'c'): 'q0',
-        ('q3', 'a'): 'q1', ('q3', 'b'): 'q4', ('q3', 'c'): 'q0',
-        ('q4', 'a'): 'q1', ('q4', 'b'): 'q0', ('q4', 'c'): 'q5',
+        ('q3', 'a'): 'q1', ('q3', 'b'): 'q4', ('q3', 'c'): 'q5',
+        ('q4', 'a'): 'q1', ('q4', 'b'): 'q0', ('q4', 'c'): 'q0',
         ('q5', 'a'): 'q6', ('q5', 'b'): 'q2', ('q5', 'c'): 'q0',
         ('q6', 'a'): 'q6', ('q6', 'b'): 'q6', ('q6', 'c'): 'q6',
     }
@@ -31,13 +36,20 @@ def task1(input_string: str) -> bool:
 
     for symbol in input_string:
         if symbol not in alphabet:
-            print("S T O P")
-            return False
+            showerror(title="Error", message="A letter found that does not belong to the alphabet")
+            return
 
         current_state = transitions[(current_state, symbol)]
         print(f"{symbol} -> {current_state}")
 
-    return current_state == final_state
+    draw_graph(transitions, 'q0', 'q6')
+    name = f"Task 1 Word {input_string}"
+    draw_table(transitions, name)
+
+    if current_state == final_state:
+        showinfo(title="Info", message="The subword was found")
+    else:
+        showinfo(title="Infor", message="The subword was not found")
 
 
 def task2(table1: dict[tuple[str, str], str], table2: dict[tuple[str, str], str],
@@ -70,24 +82,13 @@ def task2(table1: dict[tuple[str, str], str], table2: dict[tuple[str, str], str]
         if q1 in final_states1 and q2 in final_states2:
             intersection.append((q1, q2))
 
-    print(type(transition))
-    pprint(transition)
-
-    print("Unification")
-    print(*unification)
-
-    print("Intersection")
-    print(*intersection)
+    draw_table(transition, "Task 2")
+    showinfo(title="Unification", message=unification)
+    showinfo(title="Intersection", message=intersection)
 
 
-def draw(transitions: dict[tuple[str, str], str], start_state, final_states) -> None:
-    """
-    Draw DFA using NetworkX and Matplotlib.
-    :param transitions: (dict[tuple[str, str], str])  Machine transfer table.
-    :param start_state: (str) Start state.
-    :param final_states: (list[str]) Final states.
-    :return: None
-    """
+# Draw Graph
+def draw_graph(transitions: dict[tuple[str, str], str | tuple[str, str]], start_state, final_states) -> None:
     G = nx.DiGraph()
 
     edge_labels = {}
@@ -117,10 +118,27 @@ def draw(transitions: dict[tuple[str, str], str], start_state, final_states) -> 
     plt.show()
 
 
+# Draw window with transition table
+def draw_table(transition: dict[tuple[str, str], str] | dict[tuple[tuple[str, str], str], tuple[str, str]],
+               name: str) -> None:
+    window = ctk.CTkToplevel()
+    window.title(name)
+    window.geometry("500x400")
+    columns = ['State'] + alphabet
+    tree = ttk.Treeview(window, columns=columns, show='headings')
+    for col in columns:
+        tree.heading(col, text=col)
+        tree.column(col, width=80, anchor='center')
+    tree.pack(fill='both', expand=True, padx=10, pady=10)
+    states = sorted(set(q for (q, _) in transition.keys()))
+    for state in states:
+        row = [state] + [transition.get((state, a), '-') for a in alphabet]
+        tree.insert('', 'end', values=row)
+
+
 if __name__ == "__main__":
-    print(task1("cabacabac"))
-    print("---------------------")
-    print(task1("cabaaaaaac"))
+    task1("cabacabc")
+    task1("cabaaaaaac")
 
     t1: dict[tuple[str, str], str] = {
         ('q0', 'a'): 'q1', ('q0', 'b'): 'q0', ('q0', 'c'): 'q0',
@@ -137,10 +155,10 @@ if __name__ == "__main__":
         ('q4', 'a'): 'q0', ('q4', 'b'): 'q4', ('q4', 'c'): 'q3',
     }
 
-    pprint(t1)
-    pprint(t2)
+    draw_table(t1, "Task 2 Table 1")
+    draw_table(t2, "Task 2 Table 2")
+
+    draw_graph(t1, 'q0', ['q1', 'q3'])
+    draw_graph(t2, 'q0', ['q2', 'q4'])
 
     task2(t1, t2, ['q2', 'q4'], ['q1', 'q3'])
-
-    # draw(t2, 'q0', ['q1', 'q3'])
-    # draw(t1, 'q0', ['q2', 'q4'])
