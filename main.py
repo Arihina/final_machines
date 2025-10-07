@@ -1,5 +1,5 @@
 from itertools import product
-from tkinter import ttk
+from tkinter import ttk, Tk
 from tkinter.messagebox import showinfo, showerror
 
 import customtkinter as ctk
@@ -9,6 +9,8 @@ import networkx as nx
 alphabet = ['a', 'b', 'c']
 
 ctk.set_appearance_mode('light')
+
+Tk().wm_withdraw()
 
 
 def task1(input_string: str) -> None:
@@ -41,6 +43,7 @@ def task1(input_string: str) -> None:
 
         current_state = transitions[(current_state, symbol)]
         print(f"{symbol} -> {current_state}")
+    print("-------")
 
     draw_graph(transitions, 'q0', 'q6')
     name = f"Task 1 Word {input_string}"
