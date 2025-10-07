@@ -21,7 +21,7 @@ def task1(input_string: str) -> None:
     """
 
     start_state = 'q0'
-    final_state = 'q6'
+    final_state = 'q7'
 
     transitions: dict[tuple[str, str], str] = {
         ('q0', 'a'): 'q1', ('q0', 'b'): 'q0', ('q0', 'c'): 'q0',
@@ -30,7 +30,8 @@ def task1(input_string: str) -> None:
         ('q3', 'a'): 'q1', ('q3', 'b'): 'q4', ('q3', 'c'): 'q5',
         ('q4', 'a'): 'q1', ('q4', 'b'): 'q0', ('q4', 'c'): 'q0',
         ('q5', 'a'): 'q6', ('q5', 'b'): 'q2', ('q5', 'c'): 'q0',
-        ('q6', 'a'): 'q6', ('q6', 'b'): 'q6', ('q6', 'c'): 'q6',
+        ('q6', 'a'): 'q0', ('q6', 'b'): 'q7', ('q6', 'c'): 'q0',
+        ('q7', 'a'): 'q7', ('q7', 'b'): 'q7', ('q7', 'c'): 'q7',
     }
 
     # Searching for a subword
@@ -141,7 +142,7 @@ def draw_table(transition: dict[tuple[str, str], str] | dict[tuple[tuple[str, st
 
 if __name__ == "__main__":
     task1("cabacabc")
-    task1("cabaaaaaac")
+    task1("abaca")
 
     t1: dict[tuple[str, str], str] = {
         ('q0', 'a'): 'q1', ('q0', 'b'): 'q0', ('q0', 'c'): 'q0',
